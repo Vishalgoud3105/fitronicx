@@ -2,45 +2,161 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Fitness Form</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tenali's Sports Fitness Portal</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #141e30, #243b55);
+      color: #fff;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background-color: #1f2a44;
+      padding: 1rem;
+      text-align: center;
+      font-size: 2rem;
+      font-weight: bold;
+      color: #00ffc3;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+    .container {
+      max-width: 900px;
+      margin: 2rem auto;
+      background: #2c3e50;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.5);
+    }
+    label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+    input, select {
+      width: 100%;
+      padding: 0.7rem;
+      margin-top: 0.5rem;
+      border-radius: 8px;
+      border: none;
+      background: #ecf0f1;
+    }
+    button {
+      margin-top: 1.5rem;
+      padding: 0.75rem 1.5rem;
+      background-color: #00ffc3;
+      color: #000;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover {
+      background-color: #0ff;
+    }
+    .top5-section {
+      margin-top: 3rem;
+      background: #1a252f;
+      padding: 1rem;
+      border-radius: 10px;
+    }
+    .top5-section h3 {
+      color: #00ffc3;
+      margin-bottom: 1rem;
+    }
+    .top5-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+    }
+    .stat-card {
+      background: #34495e;
+      padding: 1rem;
+      border-radius: 10px;
+      text-align: center;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    }
+  </style>
 </head>
 <body>
-  <h2>Fitness Evaluation Form</h2>
-  <form id="fitnessForm">
-    <label>Name: <input name="name" required></label><br>
-    <label>Email: <input name="email" type="email" required></label><br>
-    <label>Gender:
-      <select name="gender">
-        <option>Male</option>
-        <option>Female</option>
-      </select>
-    </label><br>
-    <label>Diet Type:
-      <select name="diet">
-        <option>Vegetarian</option>
-        <option>Non-Vegetarian</option>
-      </select>
-    </label><br>
-    <button type="submit">Submit</button>
-  </form>
+  <header>Tenali's Sports Fitness Portal</header>
+  <div class="container">
+    <h2>Submit Your Fitness Details</h2>
+    <form id="fitnessForm">
+      <label>Name</label>
+      <input type="text" name="name" required>
 
-  <p id="result"></p>
+      <label>Email</label>
+      <input type="email" name="email" required>
+
+      <label>Gender</label>
+      <select name="gender" required>
+        <option value="Male">Male</option>
+        <option value="Female">Female</option>
+      </select>
+
+      <label>Age</label>
+      <input type="number" name="age" required>
+
+      <label>Diet Preference</label>
+      <select name="diet" required>
+        <option value="Vegetarian">Vegetarian</option>
+        <option value="Non-Vegetarian">Non-Vegetarian</option>
+      </select>
+
+      <label>Upload Fitness Video (Squats/Biceps/etc)</label>
+      <input type="file" name="video" accept="video/*" required>
+
+      <button type="submit">Submit Data</button>
+      <button type="button" onclick="sendEmail()">Send Email</button>
+    </form>
+
+    <p id="responseMessage"></p>
+
+    <div class="top5-section">
+      <h3>🏆 Top 5 Performers</h3>
+      <div class="top5-stats" id="top5Stats">
+        <!-- Stats will be injected here -->
+      </div>
+    </div>
+  </div>
 
   <script>
-    document.getElementById('fitnessForm').addEventListener('submit', async (e) => {
+    const form = document.getElementById('fitnessForm');
+
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const formData = new FormData(e.target);
-      const data = Object.fromEntries(formData.entries());
+      const formData = new FormData(form);
 
       const res = await fetch('/submit', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
+        body: formData
       });
 
-      const result = await res.json();
-      document.getElementById('result').innerText = result.message;
+      const data = await res.json();
+      document.getElementById('responseMessage').textContent = data.message;
+
+      if (data.top5) {
+        const statsDiv = document.getElementById('top5Stats');
+        statsDiv.innerHTML = '';
+        data.top5.forEach(user => {
+          const div = document.createElement('div');
+          div.className = 'stat-card';
+          div.innerHTML = `<strong>${user.name}</strong><br>Score: ${user.score}`;
+          statsDiv.appendChild(div);
+        });
+      }
     });
+
+    async function sendEmail() {
+      const res = await fetch('/send_email', {
+        method: 'POST'
+      });
+      const data = await res.json();
+      alert(data.message);
+    }
   </script>
 </body>
 </html>
