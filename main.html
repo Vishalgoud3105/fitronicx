@@ -1,0 +1,57 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Fitness Evaluation Form</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px; }
+    label, input, select { display: block; margin: 10px 0; }
+    .btn { margin-top: 20px; padding: 10px 20px; }
+  </style>
+</head>
+<body>
+  <h1>Fitness Result Submission</h1>
+  <form id="fitnessForm">
+    <label>Name:</label>
+    <input type="text" name="name" required />
+
+    <label>Email:</label>
+    <input type="email" name="email" required />
+
+    <label>Gender:</label>
+    <select name="gender">
+      <option value="Male">Male</option>
+      <option value="Female">Female</option>
+    </select>
+
+    <label>Diet Type:</label>
+    <select name="diet">
+      <option value="Vegetarian">Vegetarian</option>
+      <option value="Non-Vegetarian">Non-Vegetarian</option>
+    </select>
+
+    <button type="submit" class="btn">Submit</button>
+  </form>
+
+  <p id="responseMessage"></p>
+
+  <script>
+    document.getElementById('fitnessForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const data = Object.fromEntries(formData.entries());
+
+      const res = await fetch('http://localhost:5000/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+
+      const result = await res.json();
+      document.getElementById('responseMessage').textContent = result.message;
+    });
+  </script>
+</body>
+</html>
