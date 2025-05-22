@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fitronicx Fitness Portal</title>
+  <title>Tenali's Sports Fitness Portal</title>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -81,7 +81,7 @@
   </style>
 </head>
 <body>
-  <header>Fitronicx Fitness Portal</header>
+  <header>Tenali's Sports Fitness Portal</header>
   <div class="container">
     <h2>Submit Your Fitness Details</h2>
     <form id="fitnessForm">
@@ -106,11 +106,7 @@
         <option value="Non-Vegetarian">Non-Vegetarian</option>
       </select>
 
-      <label>Upload Fitness Video (Squats/Biceps/etc)</label>
-      <input type="file" name="video" accept="video/*" required>
-
-      <button type="submit">Submit Data</button>
-      <button type="button" onclick="sendEmail()">Send Email</button>
+      <button type="submit">Start Evaluation</button>
     </form>
 
     <p id="responseMessage"></p>
@@ -120,6 +116,7 @@
       <div class="top5-stats" id="top5Stats">
         <!-- Stats will be injected here -->
       </div>
+      <button onclick="pickWinners()">Pick Winner</button>
     </div>
   </div>
 
@@ -130,12 +127,12 @@
       e.preventDefault();
       const formData = new FormData(form);
 
-      const res = await fetch('/submit', {
+      const response = await fetch('/submit', {
         method: 'POST',
         body: formData
       });
 
-      const data = await res.json();
+      const data = await response.json();
       document.getElementById('responseMessage').textContent = data.message;
 
       if (data.top5) {
@@ -150,12 +147,10 @@
       }
     });
 
-    async function sendEmail() {
-      const res = await fetch('/send_email', {
-        method: 'POST'
-      });
+    async function pickWinners() {
+      const res = await fetch('/top5');
       const data = await res.json();
-      alert(data.message);
+      alert("Top Performers:\n" + data.top5.map(p => `${p.name}: ${p.score}`).join("\n"));
     }
   </script>
 </body>
